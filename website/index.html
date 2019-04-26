@@ -13,7 +13,10 @@ include_credit: false
 buildtool: false
 
 ---
-
+<link href="../dist/default-skin/default-skin.css" rel="stylesheet" type="text/css"/>
+<link href="../dist/photoswipe.css" rel="stylesheet" type="text/css"/>
+<script src="../dist/photoswipe-ui-default.js" type="text/javascript"></script>
+<script src="../dist/photoswipe.js" type="text/javascript"></script>
 	<div class="section section--head">
 
 	    <div class="row row--heading">
@@ -513,7 +516,7 @@ buildtool: false
 
     
 
-    <div id="gallery" class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+    <div id="gallery" class="pswp pswp--thumbnails_on" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="pswp__bg"></div>
 
         <div class="pswp__scroll-wrap">
@@ -567,12 +570,16 @@ buildtool: false
             </div>
           </div>
 
-        </div>
-
-
     </div>
     
-  
+             <!--thumbnails strip-->
+            <button class="pswp__thumbnails_trigger" title="thumbnails">&nbsp;</button>
+            <div class="pswp__thumbnails_wrapper">
+                <ul></ul>
+            </div>
+             
+    </div>
+
     <script type="text/javascript">
     (function() {
 
@@ -711,7 +718,96 @@ buildtool: false
 
 			    return params;
 			};
+                        
+                        /* thumbnails strip */
+                        
+                        var renderThumbnails = function( gallery, pswpElement, items, index ) {
+                            let thumbsStrip = pswpElement.querySelector(".pswp__thumbnails_wrapper"),
+                                thumbsContainer = thumbsStrip.querySelector("ul"),
+                                trigger = pswpElement.querySelector(".pswp__thumbnails_trigger"),
+                                strip = document.createDocumentFragment();
+                            
+                            for (var i = 0; i < items.length; i++) {
+                                let item = items[i],
+                                    li = document.createElement('li'),
+                                    img = document.createElement('img');
+                                    
+                                    li.setAttribute("data-index",i);
+                                    if (i===index) li.setAttribute("aria-selected", true);
+                                    
+                                    li.addEventListener('click', function (event) {
+                                                  gallery.goTo(parseInt(li.getAttribute("data-index"),10));  
+                                    }, false);
+                                    
+                                    img.setAttribute("src",item.msrc);
+                                    img.setAttribute("alt",item.title);
+                                    
+                                    
+                                    li.appendChild(img);
+                                    strip.appendChild(li);
+                            };
+                            
+                            thumbsContainer.innerHTML = "";
+                            thumbsContainer.appendChild(strip);
+                            
+                            const slider = thumbsContainer;
+                            let isDown = false;
+                            let startX;
+                            let scrollLeft;
 
+                            slider.addEventListener('mousedown', function(e){
+                              isDown = true;
+                              slider.classList.add('dragging');
+                              startX = e.pageX - slider.offsetLeft;
+                              scrollLeft = slider.scrollLeft;
+                            });
+                            slider.addEventListener('mouseleave', function() {
+                              isDown = false;
+                              slider.classList.remove('dragging');
+                            });
+                            slider.addEventListener('mouseup', function() {
+                              isDown = false;
+                              slider.classList.remove('dragging');
+                            });
+                            slider.addEventListener('mousemove', function(e) {
+                              if(!isDown) return;
+                              e.preventDefault();
+                              const x = e.pageX - slider.offsetLeft;
+                              const walk = (x - startX) ; 
+                              slider.scrollLeft = scrollLeft - walk;
+                            });
+                            slider.addEventListener('scroll', function(e) {
+ 
+                              if(slider.scrollLeft > 0)
+                                 thumbsStrip.classList.add('scrollingLeft');
+                              else
+                                 thumbsStrip.classList.remove('scrollingLeft');
+
+                              if (slider.scrollLeft === (slider.scrollWidth - slider.offsetWidth))
+                                 thumbsStrip.classList.remove('scrollingRight');
+                              else
+                                 thumbsStrip.classList.add('scrollingRight');
+                            });                                
+                            
+                            gallery.listen('afterChange', function() {
+                                let thumbSelected = thumbsContainer.querySelector("[aria-selected='true']");
+                                if (thumbSelected) thumbSelected.removeAttribute("aria-selected");
+                                
+                                thumbSelected = thumbsContainer.querySelector("[data-index='" + gallery.getCurrentIndex() + "']");
+                                if (thumbSelected) { 
+                                   thumbSelected.setAttribute("aria-selected", true);
+                                    if ((window.navigator.userAgent.indexOf("Trident")) <0) thumbSelected.scrollIntoView({behavior: "smooth"});
+                                };
+                            });
+                            
+                            trigger.addEventListener('click', function(e){
+                              pswpElement.classList.toggle('pswp--thumbnails_on');
+                            });
+                           
+                        };
+                        
+                        /*end thumbnails strip */
+                        
 			var openPhotoSwipe = function(index, galleryElement, disableAnimation, fromURL) {
 			    var pswpElement = document.querySelectorAll('.pswp')[0],
 			        gallery,
@@ -722,7 +818,8 @@ buildtool: false
 
 			    // define options (if needed)
 			    options = {
-
+                                animateTransitions: true,
+                                
 			        galleryUID: galleryElement.getAttribute('data-pswp-uid'),
 
 			        getThumbBoundsFn: function(index) {
@@ -795,6 +892,9 @@ buildtool: false
 
 			    // Pass data to PhotoSwipe and initialize it
 			    gallery = new PhotoSwipe( pswpElement, PhotoSwipeUI_Default, items, options);
+                            
+                            /* thumbnails strip */
+                            renderThumbnails( gallery, pswpElement, items, index );
 
 			    // see: http://photoswipe.com/documentation/responsive-images.html
 				var realViewportWidth,
