@@ -1057,11 +1057,11 @@ var publicMethods = {
 	goTo: function(index) {
             var itemsDiff;
 
-            if (index == _currentItemIndex + 1) { //Next
-                itemsDiff = 1;
+            if (index > _currentItemIndex ) { //Next
+                itemsDiff = index - _currentItemIndex;
             }
             else { //Prev
-                itemsDiff = -1;
+                itemsDiff = -(_currentItemIndex - index);
             }
 
             var itemChanged;
