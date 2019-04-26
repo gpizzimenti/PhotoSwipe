@@ -309,7 +309,7 @@
   opacity: 1;
 }
 .pswp__caption, .pswp__container{
-    transition: bottom .8s cubic-bezier(0.420, 0.000, 0.580, 1.000);
+    transition: opacity 1s ease-in-out , bottom .8s cubic-bezier(0.420, 0.000, 0.580, 1.000) !important;
     transform: translateZ(0);
     transform: translate3d(0,0,0);
     backface-visibility: hidden;
