@@ -722,6 +722,9 @@ buildtool: false
                         /* thumbnails strip */
                         
                         var renderThumbnails = function( gallery, pswpElement, items, index ) {
+			    
+			     pswpElement.classList.add('pswp--thumbnails_on');		
+				
                             let thumbsStrip = pswpElement.querySelector(".pswp__thumbnails_wrapper"),
                                 thumbsContainer = thumbsStrip.querySelector("ul"),
                                 trigger = pswpElement.querySelector(".pswp__thumbnails_trigger"),
