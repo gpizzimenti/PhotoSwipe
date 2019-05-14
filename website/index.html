@@ -807,7 +807,7 @@ buildtool: false
                                 thumbSelected = thumbsContainer.querySelector("[data-index='" + gallery.getCurrentIndex() + "']");
                                 if (thumbSelected) { 
                                    thumbSelected.setAttribute("aria-selected", true);
-                                    if ((window.navigator.userAgent.indexOf("Trident")) <0) thumbSelected.scrollIntoView({behavior: "smooth"});
+                                    if ((window.navigator.userAgent.indexOf("Trident")) <0) thumbSelected.scrollIntoView({behavior: "smooth", inline: "center"});
                                 };
                             });
                             
@@ -818,6 +818,7 @@ buildtool: false
 			    if (!trigger.classList.contains("setup")) {
 				trigger.classList.add("setup");
 				trigger.addEventListener('click', toggleThumbs, false);
+				    
 			    }
                            
                         };
