@@ -753,38 +753,50 @@ buildtool: false
                             thumbsContainer.innerHTML = "";
                             thumbsContainer.appendChild(strip);
                             
-                            const slider = thumbsContainer;
-                            let isDown = false;
-                            let startX;
-                            let scrollLeft;
+			    const slider = thumbsContainer;
+			    let isDown = false,
+				    startX,
+				    scrollLeft,
+				    timer;
 
-		    if (!slider.classList.contains("setup")) {
-			slider.addEventListener('mousedown', function (e) {
-			    isDown = true;
-			    startX = e.pageX - slider.offsetLeft;
-			    scrollLeft = slider.scrollLeft;
-			});
-			slider.addEventListener('mouseleave', function () {
-			    isDown = false;
-			    setTimeout(function () {
-				slider.classList.remove('dragging');
-			    }, 200);
-			});
-			slider.addEventListener('mouseup', function () {
-			    isDown = false;
-			    setTimeout(function () {
-				slider.classList.remove('dragging');
-			    }, 200);
-			});
-			slider.addEventListener('mousemove', function (e) {
-			    if (!isDown)
-				return;
-			    slider.classList.add('dragging');
-			    e.preventDefault();
-			    const x = e.pageX - slider.offsetLeft;
-			    const walk = (x - startX);
-			    slider.scrollLeft = scrollLeft - walk;
-			});
+			    if (!slider.classList.contains("setup")) {
+				slider.addEventListener('mousedown', function (e) {
+				    isDown = true;
+				    startX = e.pageX - slider.offsetLeft;
+				    scrollLeft = slider.scrollLeft;
+				});
+				slider.addEventListener('mouseleave', function () {
+				    isDown = false;
+				    setTimeout(function () {
+					slider.classList.remove('dragging');
+				    }, 200);
+				});
+				slider.addEventListener('mouseup', function () {
+				    isDown = false;
+				    setTimeout(function () {
+					slider.classList.remove('dragging');
+				    }, 200);
+				});
+				slider.addEventListener('mousemove', function (e) {
+				    if (!isDown) {
+					return;
+				    }
+				    timer = null;
+
+				    const x = e.pageX - slider.offsetLeft;
+				    const walk = (x - startX);
+				    const diff = scrollLeft - walk;
+
+				    if (slider.scrollLeft != diff) {
+					slider.classList.add('dragging');
+					slider.scrollLeft = scrollLeft - walk;
+					timer = setInterval(function () {
+					    if (!isDown)
+						slider.classList.remove('dragging');
+					}, 100);
+				    }
+
+				});
 			slider.addEventListener('scroll', function (e) {
 
 			    if (slider.scrollLeft > 0)
